@@ -46,7 +46,7 @@ databases:
         hide_sql: true
         plugins:
           datasette-chart:
-            chart_title: "Artist Popularity Chart"
+            chart_title: "Most Popular Artists Chart"
             label_column: "artist"
             data_column: "avg_popularity"
             chart_type: "bar"
@@ -87,6 +87,7 @@ databases:
             label_column: "year"
             data_column: "song_count"
             chart_type: "line"
+
       tempo_vs_popularity:
         sql: |-
           SELECT

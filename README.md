@@ -1,160 +1,311 @@
 # Datasette Chart Plugin
 
-A custom Datasette plugin that extends Datasette's capabilities by enabling interactive data visualizations directly on your table and query pages. This plugin leverages the Chart.js library to allow users to define and display various types of charts (bar, line, scatter) through simple parameter configuration in their `metadata.yaml` file. This eliminates the need for writing custom HTML or JavaScript for each visualization, providing a seamless way to add visual insights to your tabular data.
+A custom Datasette plugin that adds interactive chart visualizations to table and query pages using Chart.js. The plugin dynamically fetches data from Datasette's JSON API and renders configurable charts based on metadata configuration.
 
 ## Features
 
-- **Configurable Charts**: Define chart types, titles, and data columns directly within Datasette's `metadata.yaml`
-- **Flexible Scope**: Apply configurations globally, per database, per table, or even for specific canned queries
-- **Automatic Data Fetching**: The plugin automatically fetches the necessary data from Datasette's JSON API to render the charts
-- **Multiple Chart Types**: Supports bar, line, and scatter charts
-- **Responsive Design**: Charts are designed to be responsive and adapt to different screen sizes
-- **Error Handling**: Provides console debug messages if data columns are missing or if no chart data is available
+- **Multiple Chart Types**: Bar charts, line charts, and scatter plots
+- **Flexible Configuration**: Global, database, table, and query-specific settings
+- **Dynamic Data Fetching**: Real-time data from Datasette's JSON API
+- **Responsive Design**: Charts adapt to container size
+- **Error Handling**: Graceful degradation when data is unavailable
+- **Date Sorting**: Automatic chronological ordering for line charts
 
 ## Installation
 
-To install and use the Datasette Chart Plugin, follow these steps:
+### 1. Install Chart.js Dependencies
 
-1. **Clone the repository and navigate into it**:
+```bash
+# Install Chart.js via npm
+npm install
 
-   ```bash
-   git clone git@github.com:r-curio/datasette-chart.git
-   cd datasette-chart
-   ```
+# Copy Chart.js to static directory
+npm run update-chartjs
+```
 
-2. **Install dependencies and the plugin**:
+### 2. Plugin Setup
 
-   ```bash
-   npm install
-   npm run update-chartjs
-   pip install -e .
-   ```
-
-3. **Run Datasette with the plugin**:
-
-   ```bash
-   datasette serve my_database.db --metadata my_metadata.yml
-   ```
-
-   _Note: Replace `my_database.db` with the name of your SQLite database file and `my_metadata.yml` with your metadata file._
+The plugin is automatically loaded by Datasette when placed in the plugins directory.
 
 ## Configuration
 
-The Datasette Chart Plugin is configured via Datasette's `metadata.yaml` file. Chart settings can be defined at a global level, for specific databases/tables, or for individual canned queries. The plugin merges configurations in the following order of precedence (later overrides earlier):
+### Basic Configuration
 
-1. Global `plugins.datasette-chart`
-2. Database-specific `databases.<db_name>.plugins.datasette-chart`
-3. Table-specific `databases.<db_name>.tables.<table_name>.plugins.datasette-chart`
-4. Query-specific `databases.<db_name>.queries.<query_name>.plugins.datasette-chart`
-
-### Global Configuration
-
-Applies to all tables and queries if no more specific configuration is provided.
+Add to your `metadata.yml`:
 
 ```yaml
-# metadata.yml
 plugins:
   datasette-chart:
-    label_column: "category" # required
-    data_column: "value" # required
-    chart_type: "bar" # required
-    chart_title: "My Chart" # optional
+    label_column: "category"
+    data_column: "value"
+    chart_type: "bar"
+    chart_title: "My Chart"
 ```
 
-### Table-Specific Configuration
-
-Overrides global settings for a particular table.
+### Advanced Configuration
 
 ```yaml
-# metadata.yml
 databases:
-  spotify:
+  mydb:
+    title: "My Database"
     tables:
-      spotify_tracks:
+      my_table:
         plugins:
           datasette-chart:
-            label_column: "song" # required
-            data_column: "popularity" # required
-            chart_type: "bar" # required
-            chart_title: "My Spotify Tracks Chart" # optional
-```
+            chart_type: "line"
+            label_column: "date"
+            data_column: "sales"
+            chart_title: "Sales Over Time"
 
-### Query-Specific Configuration
-
-Overrides all other settings for a specific canned query, useful for visualizing custom SQL query results.
-
-```yaml
-# metadata.yml
-databases:
-  db_name:
     queries:
-      query_name:
+      my_query:
+        sql: "SELECT * FROM data WHERE value > 100"
         plugins:
           datasette-chart:
-            chart_title: "Custom Query Chart" # optional
-            label_column: "x_column" # required
-            data_column: "y_column" # required
-            chart_type: "scatter" # required
+            chart_type: "scatter"
+            label_column: "x_value"
+            data_column: "y_value"
+            chart_title: "Correlation Analysis"
 ```
 
-### Configuration Parameters
+### Configuration Options
 
-The `datasette-chart` plugin accepts the following parameters:
+| Option         | Type    | Default            | Description                             |
+| -------------- | ------- | ------------------ | --------------------------------------- |
+| `label_column` | string  | "song"             | Column to use for x-axis labels         |
+| `data_column`  | string  | "popularity"       | Column to use for y-axis values         |
+| `chart_type`   | string  | "bar"              | Chart type: "bar", "line", or "scatter" |
+| `chart_title`  | string  | "Table Data Chart" | Chart title                             |
+| `debug_mode`   | boolean | false              | Enable debug logging                    |
 
-- `label_column` (string, **required**): The name of the column to use for the chart's labels (X-axis for bar/line, or as an identifier for scatter)
-- `data_column` (string, **required**): The name of the column to use for the chart's data values (Y-axis for bar/line, or Y-coordinate for scatter)
-- `chart_type` (string, **required**): The type of chart to display. Supported values:
-  - `"bar"`: Displays a bar chart
-  - `"line"`: Displays a line chart. Requires `label_column` to be sortable (e.g., dates/numbers) for proper chronological display
-  - `"scatter"`: Displays a scatter plot. `label_column` will be used for the X-coordinate and `data_column` for the Y-coordinate
-- `chart_title` (string, optional): The title to display above the chart. Defaults to "Table Data Chart" or "Table Data Visualization"
+## Chart Types
 
-## Usage
+### Bar Charts
 
-Once configured in `metadata.yml` and Datasette is running with the plugin enabled, simply navigate to the relevant table or canned query page in your web browser. The chart will automatically appear at the top of the content area, above the table or query results.
+- **Use Case**: Categorical data comparison
+- **Data Structure**: Multiple datasets, one per label
+- **Example**: Comparing sales across different categories
 
-- **Bar Charts**: Ideal for comparing discrete categories
-- **Line Charts**: Best for showing trends over time or ordered data
-- **Scatter Plots**: Useful for visualizing the relationship between two numerical variables
+### Line Charts
 
-## Troubleshooting
+- **Use Case**: Time series data
+- **Data Structure**: Single dataset with chronological ordering
+- **Features**: Automatic date sorting
+- **Example**: Tracking metrics over time
 
-### Chart Not Appearing
+### Scatter Plots
 
-- **Check Datasette Console**: Ensure Datasette is running without errors in your terminal
-- **Browser Console**: Open your browser's developer console (F12) and check for any JavaScript errors. Look for messages from `console.log('Plugin config loaded...')` to verify the configuration is being passed
-- **`metadata.yml` Syntax**: YAML is strict about indentation. Ensure your `metadata.yml` is correctly formatted. Use a YAML linter if unsure
-- **Plugin Path**: Double-check that the plugin is properly installed and accessible
-- **Column Names**: Verify that `label_column` and `data_column` in your `metadata.yml` exactly match the column names in your database table/query results (case-sensitive)
-- **Chart.js Files**: Ensure `datasette_chart/static/chart.min.js` exists and is accessible
+- **Use Case**: Correlation analysis
+- **Data Structure**: X,Y coordinate pairs
+- **Example**: Analyzing relationships between variables
 
-### "Column 'X' not found in table" Error
+## Architecture & Design
 
-This means the `label_column` or `data_column` you specified in `metadata.yml` does not exist in the data returned by Datasette for that particular table or query. Review your `metadata.yml` and your database schema/query.
+### Hook Strategy
 
-### Chart Displays Incorrect Data or Format
+The plugin uses Datasette's hook system for seamless integration:
 
-- **Data Types**: Ensure the data in your specified columns is appropriate for the chosen chart type (e.g., numbers for `data_column`, or valid dates for line chart `label_column`)
-- **JSON API Data**: Inspect the JSON output from Datasette's API directly (e.g., navigate to `http://localhost:8001/database_name/table_name.json?_shape=objects`) to see the exact structure and values the plugin is receiving
+- **`extra_js_urls`**: Loads Chart.js library and custom chart logic
+- **`extra_body_script`**: Injects plugin configuration into JavaScript
 
-### Debug Mode
+### Data Processing Pipeline
 
-Enable debug mode to get more information:
+1. **Data Fetching**: Retrieves data from Datasette's JSON API
+2. **Validation**: Verifies column existence and data types
+3. **Transformation**: Chart-type-specific data processing
+4. **Rendering**: Dynamic chart creation with Chart.js
+
+### Configuration Hierarchy
+
+1. Global configuration (base settings)
+2. Database-specific overrides
+3. Table-specific overrides
+4. Query-specific overrides (highest priority)
+
+## Usage Examples
+
+### Example 1: Basic Bar Chart
 
 ```yaml
 plugins:
   datasette-chart:
-    debug_mode: true
-    label_column: "your_column"
-    data_column: "your_column"
+    label_column: "artist"
+    data_column: "popularity"
+    chart_type: "bar"
+    chart_title: "Artist Popularity"
 ```
 
-This will show:
+### Example 2: Time Series Line Chart
 
-- Plugin configuration in browser console
-- Data fetching URLs
-- Column validation results
-- Chart data processing steps
+```yaml
+databases:
+  sales:
+    tables:
+      monthly_sales:
+        plugins:
+          datasette-chart:
+            chart_type: "line"
+            label_column: "month"
+            data_column: "revenue"
+            chart_title: "Monthly Revenue Trend"
+```
+
+### Example 3: Correlation Scatter Plot
+
+```yaml
+databases:
+  analytics:
+    queries:
+      correlation_analysis:
+        sql: "SELECT x_value, y_value FROM data WHERE x_value IS NOT NULL"
+        plugins:
+          datasette-chart:
+            chart_type: "scatter"
+            label_column: "x_value"
+            data_column: "y_value"
+            chart_title: "X vs Y Correlation"
+```
+
+## Implementation Details
+
+### Dependencies
+
+```json
+{
+  "chart.js": "^4.4.0"
+}
+```
+
+### File Structure
+
+```
+datasette-chart/
+├── __init__.py          # Plugin hooks and configuration
+├── static/
+│   ├── chart.js         # Custom chart logic
+│   └── chart.min.js     # Chart.js library
+├── package.json         # npm dependencies
+└── metadata.yml         # Example configuration
+```
+
+### Key JavaScript Functions
+
+#### Data Fetching
+
+```javascript
+async function fetchTableData() {
+  const jsonUrl = `/${database}/${table}.json?_shape=objects&_size=100`;
+  const response = await fetch(jsonUrl);
+  return response.json();
+}
+```
+
+#### Chart Type Processing
+
+```javascript
+if (pluginConfig.chart_type === "scatter") {
+  // X,Y coordinate pairs
+} else if (pluginConfig.chart_type === "line") {
+  // Labels + values with date sorting
+} else {
+  // Multiple datasets for bar charts
+}
+```
+
+## Challenges & Solutions
+
+### 1. Template Detection
+
+**Challenge**: Distinguishing between table and query pages
+**Solution**: Check template name in `extra_body_script` hook
+
+```python
+if template in ["table.html", "query.html"]:
+```
+
+### 2. Configuration Injection
+
+**Challenge**: Passing Python configuration to JavaScript safely
+**Solution**: Use `json.dumps()` for proper serialization
+
+```python
+return f"window.chartPluginConfig = {json.dumps(final_config)};"
+```
+
+### 3. Date Sorting for Line Charts
+
+**Challenge**: Ensuring chronological order for time series data
+**Solution**: JavaScript Date parsing and sorting
+
+```javascript
+const sortedRows = [...rows].sort((a, b) => {
+  const dateA = new Date(a[labelColumn]);
+  const dateB = new Date(b[labelColumn]);
+  return dateA - dateB;
+});
+```
+
+### 4. Error Handling
+
+**Challenge**: Graceful degradation when data is unavailable
+**Solution**: Container hiding and error messaging
+
+```javascript
+if (!chartData) {
+  chartContainer.style.display = "none";
+  errorMessage.textContent = "No chart data available";
+}
+```
+
+## Performance Considerations
+
+### Data Limiting
+
+- Default limit of 100 records via `_size=100`
+- Configurable via metadata
+
+### Chart.js Loading
+
+- Local bundling reduces external dependencies
+- UMD format ensures compatibility
+
+### DOM Manipulation
+
+- Efficient container insertion before table
+- Minimal DOM queries
+
+## Security Considerations
+
+### JSON Injection Prevention
+
+- Proper serialization with `json.dumps()`
+- No direct string concatenation
+
+### Data Validation
+
+- Column existence verification
+- Type checking for numeric operations
+
+### XSS Prevention
+
+- Chart.js handles data sanitization
+- No direct innerHTML manipulation
+
+## Limitations
+
+1. **Fixed Chart Size**: 300px height, 800px max width
+2. **Limited Chart Types**: Only bar, line, and scatter supported
+3. **Data Size**: Hard-coded 100 record limit
+4. **Date Format**: Assumes standard date formats
+
+## Future Enhancements
+
+1. **Responsive Sizing**: Dynamic chart dimensions
+2. **Additional Chart Types**: Pie, doughnut, area charts
+3. **Interactive Features**: Zoom, pan, tooltip customization
+4. **Data Export**: Chart image download
+5. **Real-time Updates**: WebSocket integration
+6. **Advanced Sorting**: Multiple column sorting options
 
 ## Development
 
@@ -177,6 +328,13 @@ npm run update-chartjs
 ```bash
 # Run tests
 python -m pytest tests/
+```
+
+### Building
+
+```bash
+# Build for production
+npm run build
 ```
 
 ## Contributing
