@@ -1,21 +1,17 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Get plugin configuration from template
   const pluginConfig = window.chartPluginConfig || {};
   console.log("Chart Plugin Configuration:", pluginConfig);
 
-  // Create container for the chart
   const chartContainer = document.createElement("div");
   chartContainer.id = "chart-container";
   chartContainer.style.cssText =
     "background: white; padding: 20px; border-radius: 10px; margin: 20px 0; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); border: 1px solid #e0e0e0; max-width: 800px;";
 
-  // Add title
   const title = document.createElement("h3");
   title.textContent = pluginConfig.chart_title || "Table Data Chart";
   title.style.cssText = "margin: 0 0 20px 0; color: #333; text-align: center;";
   chartContainer.appendChild(title);
 
-  // Create canvas for the chart
   const canvas = document.createElement("canvas");
   canvas.id = "myChart";
   canvas.style.cssText =
@@ -34,7 +30,6 @@ document.addEventListener("DOMContentLoaded", function () {
     document.body.appendChild(chartContainer);
   }
 
-  // Get the table data using JSON API of datasette
   async function fetchTableData() {
     try {
       // Get current URL path to determine database and table
@@ -65,7 +60,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Process table data for chart
   function processDataForChart(data) {
     if (!data || !data.rows || data.rows.length === 0) {
       return null;
@@ -98,9 +92,8 @@ document.addEventListener("DOMContentLoaded", function () {
       return value;
     });
 
-    // Handle different chart types
     if (pluginConfig.chart_type === "scatter") {
-      // reate x,y coordinate pairs
+      // create x,y coordinate pairs
       const scatterData = labels.map((label, index) => ({
         x: parseFloat(label) || index,
         y: parseFloat(dataValues[index]) || 0,
@@ -155,19 +148,16 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Create chart with data
   async function createChart() {
     const tableData = await fetchTableData();
     const chartData = processDataForChart(tableData);
 
-    // If no chart data is available, hide the container and don't create chart
     if (!chartData) {
       console.log("No chart data available - hiding chart container");
       chartContainer.style.display = "none";
       return;
     }
 
-    // Show the container if we have data
     chartContainer.style.display = "block";
 
     const ctx = canvas.getContext("2d");

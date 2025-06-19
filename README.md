@@ -27,6 +27,66 @@ npm run update-chartjs
 
 The plugin is automatically loaded by Datasette when placed in the plugins directory.
 
+### 3. Development Installation (for Contributors)
+
+If you've cloned this repository and want to work on it:
+
+```bash
+# Clone the repository
+git clone https://github.com/YOUR_USERNAME/datasette-chart.git
+cd datasette-chart
+
+# Install Chart.js dependencies
+npm install
+npm run update-chartjs
+
+# Install the plugin in development mode
+pip install -e .
+
+# Or if using uv
+uv pip install -e .
+```
+
+### 4. Using with Datasette
+
+Once installed, you can use it with any Datasette instance:
+
+```bash
+# Basic usage
+datasette serve your-database.db --plugins-dir=.
+
+# Or if installed globally
+datasette serve your-database.db
+```
+
+## Quick Start for Users
+
+### Option A: Install from GitHub (Development Version)
+
+```bash
+pip install git+https://github.com/YOUR_USERNAME/datasette-chart.git
+```
+
+### Option B: Clone and Install Locally
+
+```bash
+git clone https://github.com/YOUR_USERNAME/datasette-chart.git
+cd datasette-chart
+npm install
+npm run update-chartjs
+pip install -e .
+```
+
+### Option C: Use as a Plugin Directory
+
+```bash
+# Clone the repository
+git clone https://github.com/YOUR_USERNAME/datasette-chart.git
+
+# Run Datasette with the plugin directory
+datasette serve your-database.db --plugins-dir=datasette-chart
+```
+
 ## Configuration
 
 ### Basic Configuration
