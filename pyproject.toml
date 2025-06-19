@@ -1,0 +1,64 @@
+[project]
+name = "datasette-chart"
+version = "0.1.0"
+description = "A Datasette plugin that adds interactive chart visualizations using Chart.js"
+readme = "README.md"
+authors = [{name = "rodney", email = "rodneymaisog@example.com"}]
+license = "MIT"
+classifiers=[
+    "Framework :: Datasette",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Database",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "datasette>=0.64.0",
+]
+keywords = ["datasette", "plugin", "charts", "visualization", "chart.js"]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project.urls]
+Homepage = "https://github.com/r-curio/datasette-chart"
+Documentation = "https://github.com/r-curio/datasette-chart#readme"
+Repository = "https://github.com/r-curio/datasette-chart"
+Changelog = "https://github.com/r-curio/datasette-chart/releases"
+Issues = "https://github.com/r-curio/datasette-chart/issues"
+CI = "https://github.com/r-curio/datasette-chart/actions"
+
+[project.entry-points.datasette]
+chart = "datasette_chart"
+
+[project.optional-dependencies]
+test = ["pytest", "pytest-asyncio", "pytest-cov"]
+dev = ["black", "flake8", "mypy"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+addopts = "--cov=datasette_chart --cov-report=term-missing"
+
+[tool.setuptools.package-data]
+datasette_chart = ["static/*", "templates/*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+

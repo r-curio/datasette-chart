@@ -1,0 +1,22 @@
+{
+  "name": "datasette-chart",
+  "version": "1.0.0",
+  "description": "A Datasette plugin for creating charts with Chart.js",
+  "main": "index.js",
+  "scripts": {
+    "install-chartjs": "npm install chart.js && cp node_modules/chart.js/dist/chart.umd.min.js datasette_chart/static/chart.min.js",
+    "update-chartjs": "npm update chart.js && cp node_modules/chart.js/dist/chart.umd.min.js datasette_chart/static/chart.min.js",
+    "build": "npm run install-chartjs"
+  },
+  "keywords": [
+    "datasette",
+    "plugin",
+    "chart",
+    "visualization"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chart.js": "^4.5.0"
+  }
+}

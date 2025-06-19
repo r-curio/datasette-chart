@@ -1,0 +1,121 @@
+title: "Spotify Data with Charts"
+description: "A sample database with chart visualization plugin"
+license: "MIT"
+license_url: "https://opensource.org/licenses/MIT"
+source: "Sample Data"
+source_url: "https://example.com/"
+
+plugins:
+  datasette-chart:
+    label_column: "song"
+    data_column: "popularity"
+    chart_type: "bar"
+    chart_title: "Song Popularity Chart"
+    debug_mode: true
+
+# Database-specific configuration
+databases:
+  spotify:
+    title: "Spotify Music Data"
+    description: "Sample Spotify music data with artist and song information"
+    tables:
+      spotify_tracks:
+        title: "Spotify Tracks"
+        description: "Track information including artist, song, and popularity"
+        plugins:
+          datasette-chart:
+            label_column: "song"
+            data_column: "popularity"
+            chart_type: "bar"
+            chart_title: "Song Popularity Chart"
+
+    # Canned queries with different chart configurations
+    queries:
+      most_popular_artists:
+        sql: |-
+          SELECT
+            artist,
+            COUNT(*) as song_count,
+            AVG(popularity) as avg_popularity
+          FROM spotify
+          GROUP BY artist
+          HAVING COUNT(*) > 2
+          ORDER BY avg_popularity DESC
+          LIMIT 20
+        title: Most Popular Artists
+        hide_sql: true
+        plugins:
+          datasette-chart:
+            chart_title: "Artist Popularity Chart"
+            label_column: "artist"
+            data_column: "avg_popularity"
+            chart_type: "bar"
+
+      most_popular_songs:
+        sql: |-
+          SELECT
+            song,
+            artist,
+            MAX(popularity) as popularity
+          FROM spotify
+          GROUP BY song, artist
+          ORDER BY popularity DESC
+          LIMIT 20
+        title: Most Popular Songs
+        hide_sql: true
+        plugins:
+          datasette-chart:
+            chart_title: "Song Popularity Chart"
+            label_column: "song"
+            data_column: "popularity"
+            chart_type: "bar"
+            max_records: 20
+      yearwise_explicit_songs:
+        sql: |-
+          SELECT
+            year,
+            COUNT(*) AS song_count
+          FROM spotify
+          WHERE explicit = 'True'
+          GROUP BY year
+          ORDER BY song_count DESC;
+        title: Yearwise Explicit Songs
+        hide_sql: true
+        plugins:
+          datasette-chart:
+            chart_title: "Yearwise Explicit Songs Chart"
+            label_column: "year"
+            data_column: "song_count"
+            chart_type: "line"
+      tempo_vs_popularity:
+        sql: |-
+          SELECT
+            tempo,
+            popularity
+          FROM spotify
+          WHERE popularity > 60
+          ORDER BY popularity DESC
+        title: Tempo vs Popularity
+        hide_sql: true
+        plugins:
+          datasette-chart:
+            chart_title: "Tempo vs Popularity Chart"
+            label_column: "tempo"
+            data_column: "popularity"
+            chart_type: "scatter"
+      danceability_vs_popularity:
+        sql: |-
+          SELECT
+            danceability,
+            popularity
+          FROM spotify
+          WHERE popularity > 60
+          ORDER BY popularity DESC
+        title: Danceability vs Popularity
+        hide_sql: true
+        plugins:
+          datasette-chart:
+            chart_title: "Danceability vs Popularity Chart"
+            label_column: "danceability"
+            data_column: "popularity"
+            chart_type: "scatter"
